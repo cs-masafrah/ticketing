@@ -3,17 +3,18 @@
 namespace App\Http\Livewire\Ticket;
 
 use App\Models\Ticket;
-use Filament\Facades\Filament;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
+use Filament\Facades\Filament;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\DeleteAction;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class Attachments extends Component implements HasForms, HasTable
 {
@@ -78,10 +79,10 @@ class Attachments extends Component implements HasForms, HasTable
                 ->sortable()
                 ->searchable(),
 
-            TextColumn::make('human_readable_size')
-                ->label(__('Size'))
-                ->sortable()
-                ->searchable(),
+            // TextColumn::make(name: 'human_readable_size')
+            //     ->label(__('Size'))
+            //     ->sortable()
+            //     ->searchable(),
 
             TextColumn::make('mime_type')
                 ->label(__('Mime type'))
@@ -93,6 +94,31 @@ class Attachments extends Component implements HasForms, HasTable
     protected function getTableActions(): array
     {
         return [
+            Action::make('view')
+            ->label(__('View'))
+            ->icon('heroicon-o-eye')
+            ->url(function ($record) {
+                return $record->getUrl();
+            })
+            ->openUrlInNewTab(),
+
+            Action::make('download')
+                ->label(__('Download'))
+                ->icon('heroicon-o-download')
+                ->action(function ($record) {
+                    // Ensure the media object exists and is valid
+                    $media = $record; // If $record is directly your media model
+                    $filePath = $media->getPath(); // Retrieve the file path
+
+                    // Validate if the file exists on disk
+                    if (!file_exists($filePath)) {
+                        Filament::notify('danger', __('File not found on the server.'));
+                        return;
+                    }
+
+                    // Return the file as a download response
+                    return response()->download($filePath, $media->file_name);
+                }),
             DeleteAction::make()
                 ->action(function ($record) {
                     $record->delete();
