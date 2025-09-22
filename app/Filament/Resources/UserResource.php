@@ -61,6 +61,11 @@ class UserResource extends Resource
                                     )
                                     ->maxLength(255),
 
+                                Forms\Components\TextInput::make('password')
+                                    ->label(__('Password'))
+                                    ->required(fn(string $context): bool => $context === 'create')
+                                    ->password(),
+
                                 Forms\Components\CheckboxList::make('roles')
                                     ->label(__('Permission roles'))
                                     ->required()

@@ -19,11 +19,18 @@ use Laravel\Sanctum\HasApiTokens;
 use ProtoneMedia\LaravelVerifyNewEmail\MustVerifyNewEmail;
 use Ramsey\Uuid\Uuid;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable,
-        HasRoles, HasAvatarUrl, SoftDeletes, MustVerifyNewEmail;
+    use HasApiTokens,
+        HasFactory,
+        Notifiable,
+        TwoFactorAuthenticatable,
+        HasRoles,
+        HasAvatarUrl,
+        SoftDeletes,
+        MustVerifyNewEmail;
 
     /**
      * The attributes that are mass assignable.
@@ -58,6 +65,16 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected function setPasswordAttribute($value): void
+    {
+        if (!empty($value)) {
+            // Only hash if it's not already hashed
+            $this->attributes['password'] = Hash::needsRehash($value)
+                ? Hash::make($value)
+                : $value;
+        }
+    }
 
     public static function boot()
     {
