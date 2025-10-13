@@ -15,19 +15,19 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class TimesheetExport extends Page implements HasForms
+class TicketExport extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $slug = 'timesheet-export';
+    protected static ?string $slug = 'ticket-export';
 
     protected static ?int $navigationSort = 2;
 
-    protected static string $view = 'filament.pages.timesheet-export';
+    protected static string $view = 'filament.pages.ticket-export';
 
     protected static function getNavigationGroup(): ?string
     {
-        return __('Timesheet');
+        return __('Tickets');
     }
 
     public function mount(): void
@@ -66,16 +66,10 @@ class TimesheetExport extends Page implements HasForms
         $data = $this->form->getState();
 
         return Excel::download(
-            new \App\Exports\TimesheetExport($data),
+            new \App\Exports\TicketExport($data),
             'time_' . time() . '.xlsx', // <-- change extension to xlsx
             \Maatwebsite\Excel\Excel::XLSX, // <-- change type to XLSX
             ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] // optional
         );
-        // return Excel::download(
-        //     new \App\Exports\TimesheetExport($data),
-        //     'time_' . time() . '.csv',
-        //     \Maatwebsite\Excel\Excel::CSV,
-        //     ['Content-Type' => 'text/csv']
-        // );
     }
 }
