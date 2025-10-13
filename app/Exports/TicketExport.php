@@ -31,7 +31,7 @@ class TicketExport implements FromCollection, WithHeadings
             'type',
             'priority',
             'ticket Date',
-            'content'
+            // 'content'
         ];
     }
 
