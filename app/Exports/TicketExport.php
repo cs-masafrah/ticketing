@@ -2,12 +2,13 @@
 
 namespace App\Exports;
 
-use App\Models\Project;
+use Carbon\Carbon;
 use App\Models\Ticket;
+use App\Models\Project;
 use App\Models\TicketHour;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
 class TicketExport implements FromCollection, WithHeadings
 {
@@ -45,13 +46,18 @@ class TicketExport implements FromCollection, WithHeadings
         //     ->whereBetween('created_at', [$this->params['start_date'], $this->params['end_date']])
         //     ->get();
 
-        $hours = Ticket::where('owner_id', $this->params['user_id'] ? $this->params['user_id'] : auth()->user()->id)
+        $hours = Ticket::query()
+            ->where('owner_id', $this->params['user_id'] ?? auth()->user()->id)
+            ->when(
+                !empty($this->params['project_id']),
+                fn($query) =>
+                $query->where('project_id', $this->params['project_id'])
+            )
             ->whereBetween('created_at', [
-                $this->params['start_date'] . ' 00:00:00',
-                $this->params['end_date'] . ' 23:59:59',
+                Carbon::parse($this->params['start_date'])->startOfDay(),
+                Carbon::parse($this->params['end_date'])->endOfDay(),
             ])
             ->get();
-
 
 
         foreach ($hours as $item) {

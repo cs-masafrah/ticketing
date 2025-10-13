@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Models\User;
+use App\Models\Project;
 use Filament\Pages\Page;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
@@ -55,6 +56,11 @@ class TicketExport extends Page implements HasForms
                             ->label('User')
                             ->reactive()
                             ->options(User::all()->pluck('name', 'id')) // get users dynamically
+                            ->searchable(),
+                        Select::make('project_id')
+                            ->label('Project')
+                            ->reactive()
+                            ->options(Project::all()->pluck('name', 'id')) // get users dynamically
                             ->searchable(),
                     ])
             ])
