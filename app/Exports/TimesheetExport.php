@@ -30,6 +30,10 @@ class TimesheetExport implements FromCollection, WithHeadings
             'Hours',
             'Activity',
             'Date',
+            'Ticket Date',
+            'Status',
+            'Owner',
+            'Responsible',
         ];
     }
 
@@ -40,9 +44,18 @@ class TimesheetExport implements FromCollection, WithHeadings
     {
         $collection = collect();
 
-        $hours = TicketHour::where('user_id', auth()->user()->id)
-            ->whereBetween('created_at', [$this->params['start_date'], $this->params['end_date']])
+        // $hours = TicketHour::where('user_id', auth()->user()->id)
+        //     ->whereBetween('created_at', [$this->params['start_date'], $this->params['end_date']])
+        //     ->get();
+
+        $hours = TicketHour::where('user_id', $this->params['user_id'] ? $this->params['user_id'] : auth()->user()->id)
+            ->whereBetween('created_at', [
+                $this->params['start_date'] . ' 00:00:00',
+                $this->params['end_date'] . ' 23:59:59',
+            ])
             ->get();
+
+
 
         foreach ($hours as $item) {
             $collection->push([
@@ -55,6 +68,10 @@ class TimesheetExport implements FromCollection, WithHeadings
                 'hours' => number_format($item->value, 2, ',', ' '),
                 'activity' => $item->activity ? $item->activity->name : '-',
                 'date' => $item->created_at->format(__('Y-m-d g:i A')),
+                'ticket Date' => $item->ticket->created_at->format(__('Y-m-d g:i A')),
+                'status' => $item?->ticket?->status?->name,
+                'owner' => $item?->ticket?->owner?->name,
+                'responsible' => $item?->ticket?->responsible?->name,
             ]);
         }
 
