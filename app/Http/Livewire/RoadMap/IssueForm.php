@@ -75,10 +75,11 @@ class IssueForm extends Component implements HasForms
                                 ->reactive()
                                 ->disabled($this->project != null)
                                 ->columnSpan(2)
-                                ->options(fn() => Project::where('owner_id', auth()->user()->id)
-                                    ->orWhereHas('users', function ($query) {
-                                        return $query->where('users.id', auth()->user()->id);
-                                    })->pluck('name', 'id')->toArray()
+                                ->options(
+                                    fn() => Project::where('owner_id', auth()->user()->id)
+                                        ->orWhereHas('users', function ($query) {
+                                            return $query->where('users.id', auth()->user()->id);
+                                        })->pluck('name', 'id')->toArray()
                                 )
                                 ->afterStateUpdated(fn(Closure $get) => $this->initProject($get('project_id')))
                                 ->required(),
@@ -87,18 +88,18 @@ class IssueForm extends Component implements HasForms
                                 ->label(__('Sprint'))
                                 ->searchable()
                                 ->reactive()
-                                ->visible(fn () => $this->project && $this->project->type === 'scrum')
+                                ->visible(fn() => $this->project && $this->project->type === 'scrum')
                                 ->columnSpan(2)
-                                ->options(fn () => $this->sprints),
+                                ->options(fn() => $this->sprints),
 
                             Forms\Components\Select::make('epic_id')
                                 ->label(__('Epic'))
                                 ->searchable()
                                 ->reactive()
                                 ->columnSpan(2)
-                                ->required()
-                                ->visible(fn () => $this->project && $this->project->type !== 'scrum')
-                                ->options(fn () => $this->epics),
+                                // ->required()
+                                ->visible(fn() => $this->project && $this->project->type !== 'scrum')
+                                ->options(fn() => $this->epics),
 
                             Forms\Components\TextInput::make('name')
                                 ->label(__('Ticket name'))
